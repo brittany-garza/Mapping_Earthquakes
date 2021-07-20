@@ -82,6 +82,7 @@ d3.json(earthquakeData).then(function(data) {
         // Setting the style for each circle marker for each feature
     style: styleInfo    
     }).addTo(map);
+    // this is a test
 });
 
 
