@@ -15,6 +15,12 @@ let satelliteStreets = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/sate
 	accessToken: API_KEY
 });
 
+let navNight = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/navigation-night-v1/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+  attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery (c) <a href="https://www.mapbox.com/">Mapbox</a>',
+  maxZoom: 18,
+  accessToken: API_KEY
+});
+
 // Create the map object with center, zoom level and default layer.
 let map = L.map('mapid', {
 	center: [40.7, -94.5],
@@ -25,7 +31,8 @@ let map = L.map('mapid', {
 // Create a base layer that holds all three maps.
 let baseMaps = {
   "Streets": streets,
-  "Satellite": satelliteStreets
+  "Satellite": satelliteStreets,
+  "Navigation Night": navNight
 };
 
 
@@ -39,7 +46,7 @@ let majorEQ = new L.LayerGroup();
 let overlays = {
   "Earthquakes": allEarthquakes,
   "Tectonic Plates": tectonicPlates,
-  "Earthquake Data": majorEQ
+  "Major Earthquakes": majorEQ
 };
 
 // Then we add a control to the map that will allow the user to change which
@@ -117,7 +124,7 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
     console.log(data);
 
     L.geoJson(data, {
-      color: '#FD00DE',
+      color: '#0004FD',
       weight: '3',
     }).addTo(tectonicPlates);
     tectonicPlates.addTo(map);
@@ -142,14 +149,16 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
     
     // 5. Change the color function to use three colors for the major earthquakes based on the magnitude of the earthquake.
     function getColor(magnitude) {
-      if (magnitude < 5) {
-        return "#ea2c2c";
+      if (magnitude > 6) {
+        return "red";
       }
-      if (magnitude > 5) {
-        return "#ee9c00";
+      if (magnitude >= 5) {
+        return "orange";
       }
-      if (magnitude > 6)
-      return "#eecc00";
+      if (magnitude < 5){
+        return "yellow";
+      }
+      
     }
     
     // 6. Use the function that determines the radius of the earthquake marker based on its magnitude.
