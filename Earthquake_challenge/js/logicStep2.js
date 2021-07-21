@@ -24,8 +24,8 @@ let baseMaps = {
 // Create the map object with a center and zoom level.
 // let map = L.map('mapid').setView([30, 30], 2);
 let map = L.map("mapid", {
-    center: [43.7, -79.3],
-    zoom: 11,
+    center: [39.5, -98.5],
+    zoom: 3,
     layers: [streets],
 })
 
@@ -36,38 +36,56 @@ L.control.layers(baseMaps).addTo(map);
 //streets.addTo(map);
 
 // Get data from cities.js
-let torontoHoods = "https://raw.githubusercontent.com/brittany-garza/Mapping_Earthquakes/main/torontoNeighborhoods.json";
+let earthquakeData = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
 // Create a style for the lines.
-let myStyle = {
-    color: "blue",
-    fillColor: 'yellow',
-    weight: 1
-}
+// let myStyle = {
+//     color: "blue",
+//     fillColor: 'yellow',
+//     weight: 1
+// }
 
-// Grabbing our GeoJSON data.
-d3.json(torontoHoods).then(function(data) {
-    console.log(data);
-    // want to inclue airport code and name in pop up
-  // Creating a GeoJSON layer with the retrieved data.
-  L.geoJson(data, {
-    //   color: '#ffffa1',
-    //   weight: '2',
-    style: myStyle,
-    onEachFeature: function (element, layer) {
-        layer.bindPopup('<h2>Neighborhood: ' + element.properties.AREA_NAME + '</h2>')
-      }
-  }).addTo(map);
+// Creating a GeoJson layer with the retrieved data
+d3.json(earthquakeData).then(function(data) {
+    // This function returns the style data for each of the earthquakes we plot on
+// the map. We pass the magnitude of the earthquake into a function
+// to calculate the radius.
+    function styleInfo(feature) {
+        return {
+        opacity: 1,
+        fillOpacity: 1,
+        fillColor: "#ffae42",
+        color: "#000000",
+        radius: getRadius(feature.properties.mag),
+        stroke: true,
+        weight: 0.5
+        };
+    }
+
+    // This function determines the radius of the earthquake marker based on its magnitude.
+// Earthquakes with a magnitude of 0 will be plotted with a radius of 1.
+    function getRadius(magnitude) {
+        if (magnitude === 0) {
+        return 1;
+        }
+        return magnitude * 4;
+    }
+
+    L.geoJson(data, {
+
+        // We turn each feature into a circle marker on the map.
+
+        pointToLayer: function(feature, latlng){
+            console.log(data);
+            return L.circleMarker(latlng);
+        },
+        // Setting the style for each circle marker for each feature
+    style: styleInfo    
+    }).addTo(map);
+    // this is a test
 });
 
-// L.geoJSON(airportData,{
-//     pointToLayer: function(feature, latlng) {
-//         console.log(feature);
-//         return L.marker(latlng)
-//         //.bindPopup("<h2>" + feature.properties.name + "</h2> <hr> <h3>" + feature.properties.city + ", " + feature.properties.country + "</h3>")
-//         .bindPopup("<h2> Airport code: " + feature.properties.faa + "</h2> <hr> <h3> Airport name: " + feature.properties.name + "</h3>")
-//     }
-// }).addTo(map);
+
 
 
 
